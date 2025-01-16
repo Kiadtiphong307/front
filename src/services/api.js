@@ -1,15 +1,19 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000',
-  headers: {
-    'Content-Type': 'application/json',
-  }
+  baseURL: import.meta.env.VITE_API_URL || 'https://back-yno2.onrender.com',
+  withCredentials: true
 });
 
 export const washingMachineAPI = {
-  getAllMachines() {
-    return api.get('/machines');
+  async getAllMachines() {
+    try {
+      const response = await api.get('/machines');
+      return response;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   },
   
   updateMachineStatus(id, status) {
