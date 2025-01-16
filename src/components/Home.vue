@@ -20,16 +20,11 @@
       </div>
     </div>
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>กำลังโหลด...</p>
-    </div>
-    
-    <div v-else-if="error" class="error">
+    <div v-if="error" class="error">
       {{ error }}
     </div>
     
-    <div v-else class="machines-grid">
+    <div class="machines-grid">
       <div v-for="machine in machines" 
            :key="machine.id" 
            class="machine-card"
@@ -44,7 +39,8 @@
         </div>
         <button 
           @click="machine.status ? stopMachine(machine.id) : startMachine(machine.id)"
-          :class="{ 'btn-stop': machine.status, 'btn-start': !machine.status }">
+          :class="{ 'btn-stop': machine.status, 'btn-start': !machine.status }"
+          :disabled="loading">
           {{ machine.status ? 'หยุดการทำงาน' : 'เริ่มใช้งาน' }}
         </button>
       </div>
@@ -62,12 +58,11 @@ const stats = ref({
   available: 0,
   inUse: 0
 })
-const loading = ref(true)
+const loading = ref(false)
 const error = ref(null)
 
 const loadData = async () => {
   try {
-    loading.value = true
     const [machinesData, statsData] = await Promise.all([
       washingMachineAPI.getAllMachines(),
       washingMachineAPI.getStats()
@@ -77,37 +72,44 @@ const loadData = async () => {
   } catch (err) {
     error.value = err.message
     console.error('Error loading data:', err)
-  } finally {
-    loading.value = false
   }
 }
 
 const startMachine = async (id) => {
   try {
+    loading.value = true
     await washingMachineAPI.startMachine(id)
     await loadData()
   } catch (err) {
     console.error('Error starting machine:', err)
+  } finally {
+    loading.value = false
   }
 }
 
 const stopMachine = async (id) => {
   try {
+    loading.value = true
     await washingMachineAPI.stopMachine(id)
     await loadData()
   } catch (err) {
     console.error('Error stopping machine:', err)
+  } finally {
+    loading.value = false
   }
 }
 
 onMounted(() => {
   loadData()
-  // อัพเดททุก 5 วินาที
-  setInterval(loadData, 5000)
 })
 </script>
 
 <style scoped>
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -230,26 +232,6 @@ button {
 
 .btn-stop:hover {
   background: #e53935;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .error {
