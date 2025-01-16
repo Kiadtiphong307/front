@@ -6,9 +6,20 @@ const api = axios.create({
 });
 
 export const washingMachineAPI = {
+  async getStats() {
+    try {
+      const response = await api.get('/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      throw error;
+    }
+  },
+  
   async getAllMachines() {
     try {
       const response = await api.get('/machines');
+      console.log('API Response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Error loading machines:', error);
