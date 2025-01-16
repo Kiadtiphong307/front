@@ -9,19 +9,51 @@ export const washingMachineAPI = {
   async getAllMachines() {
     try {
       const response = await api.get('/machines');
-      return response;
+      return response.data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error('Error loading machines:', error);
       throw error;
     }
   },
   
-  updateMachineStatus(id, status) {
-    return api.put(`/machines/${id}`, { status });
+  async startMachine(id) {
+    try {
+      const response = await api.post(`/machines/${id}/start`);
+      return response.data;
+    } catch (error) {
+      console.error('Error starting machine:', error);
+      throw error;
+    }
   },
   
-  startMachine(id) {
-    return api.post(`/machines/${id}/start`);
+  async stopMachine(id) {
+    try {
+      const response = await api.post(`/machines/${id}/stop`);
+      return response.data;
+    } catch (error) {
+      console.error('Error stopping machine:', error);
+      throw error;
+    }
+  },
+  
+  async updateMachineStatus(id, status, time) {
+    try {
+      const response = await api.put(`/machines/${id}`, { status, time });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating machine status:', error);
+      throw error;
+    }
+  },
+  
+  async updateMachineTime(id, time) {
+    try {
+      const response = await api.put(`/machines/${id}/time`, { time });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating machine time:', error);
+      throw error;
+    }
   },
   
   getMachinesList() {
